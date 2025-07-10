@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from '@/lib/api/base-query';
+import type { ILoginResponse } from '@/types/auth.types';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
@@ -7,7 +8,7 @@ export const apiSlice = createApi({
   tagTypes: ['User'], // add more later
   endpoints: (builder) => ({
     login: builder.mutation<
-      { accessToken: string; refreshToken: string },
+      ILoginResponse,
       { email: string; password: string }
     >({
       query: (credentials) => ({
@@ -17,18 +18,17 @@ export const apiSlice = createApi({
       }),
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled;
+          const { data: response } = await queryFulfilled;
 
-          const { setAccessToken, setRefreshToken, decodeJWT } = await import('@/lib/auth');
+          const { setAccessToken, setRefreshToken } = await import('@/lib/auth');
           const { setUser } = await import('@/@redux/features/auth/auth.slice');
 
-          // Save tokens
-          setAccessToken(data.accessToken);
-          setRefreshToken(data.refreshToken);
+          // Save tokens from the response structure
+          setAccessToken(response.data.token.token);
+          setRefreshToken(response.data.token.refreshToken);
 
-          // Decode user and store in Redux
-          const user = decodeJWT(data.accessToken);
-          if (user) dispatch(setUser(user));
+          // Store user data directly from API response
+          dispatch(setUser(response.data.user));
         } catch (err) {
           const { authFailed } = await import('@/@redux/features/auth/auth.slice');
           dispatch(authFailed('Login failed. Please check your credentials.'));
