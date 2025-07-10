@@ -19,9 +19,3 @@ export interface IUser {
   emailVerifiedAt: string;
 }
 
-export interface AuthState {
-  user: IUser | null;
-  isAuthenticated: boolean;
-  loading: boolean;
-  error: string | null;
-} 
