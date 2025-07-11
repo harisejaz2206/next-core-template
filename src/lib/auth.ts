@@ -47,10 +47,53 @@ export const decodeJWT = <T = any>(token: string): T | null => {
   }
 };
 
-// Bootstrap User Helper
+// Token Validation Utilities
+export const isTokenExpired = (token: string): boolean => {
+  try {
+    const payload = decodeJWT<{ exp: number }>(token);
+    if (!payload || !payload.exp) return true;
+    
+    // JWT exp is in seconds, Date.now() is in milliseconds
+    return payload.exp * 1000 < Date.now();
+  } catch {
+    return true;
+  }
+};
+
+export const isTokenValid = (token: string): boolean => {
+  try {
+    // Check if token has proper JWT format (3 parts separated by dots)
+    const parts = token.split('.');
+    if (parts.length !== 3) return false;
+    
+    // Try to decode the payload
+    const payload = decodeJWT(token);
+    if (!payload) return false;
+    
+    // Check if token is not expired
+    return !isTokenExpired(token);
+  } catch {
+    return false;
+  }
+};
+
+export const hasValidTokens = (): boolean => {
+  const accessToken = getAccessToken();
+  const refreshToken = getRefreshToken();
+  
+  // Must have both tokens
+  if (!accessToken || !refreshToken) return false;
+  
+  // Access token can be expired (will be refreshed), but refresh token must be valid
+  return isTokenValid(refreshToken);
+};
+
+// Bootstrap User Helper (returns minimal JWT data only)
+// Note: For session restoration, use API profile fetch for complete user data
 export const bootstrapUser = (): IUser | null => {
   const token = getAccessToken();
-  if (!token) return null;
+  if (!token || !isTokenValid(token)) return null;
+  
   const payload = decodeJWT<IUser>(token);
   return payload || null;
 }; 

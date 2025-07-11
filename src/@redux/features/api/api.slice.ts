@@ -1,6 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from '@/lib/api/base-query';
-import type { ILoginResponse, IRefreshTokenResponse } from '@/types/auth.types';
+import type { ILoginResponse, IRefreshTokenResponse, IUser } from '@/types/auth.types';
+import type { IApiResponse } from '@/types/api.types';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
@@ -60,7 +61,22 @@ export const apiSlice = createApi({
         }
       },
     }),
+    getUserProfile: builder.query<
+      IApiResponse<IUser>,
+      void
+    >({
+      query: () => ({
+        url: 'users/profile',
+        method: 'GET',
+      }),
+      providesTags: ['User'],
+    }),
   }),
 });
 
-export const { useLoginMutation, useRefreshTokenMutation } = apiSlice; 
+export const { 
+  useLoginMutation, 
+  useRefreshTokenMutation,
+  useGetUserProfileQuery,
+  useLazyGetUserProfileQuery
+} = apiSlice; 

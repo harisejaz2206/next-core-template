@@ -4,7 +4,9 @@ import {
   setAccessToken, 
   setRefreshToken, 
   removeAccessToken, 
-  removeRefreshToken 
+  removeRefreshToken,
+  isTokenExpired as checkTokenExpired,
+  isTokenValid as checkTokenValid
 } from '@/lib/auth';
 
 /**
@@ -40,6 +42,11 @@ export const attemptTokenRefresh = async (): Promise<{
   
   if (!refreshToken) {
     return { success: false, error: 'No refresh token available' };
+  }
+
+  // Check if refresh token is valid before attempting refresh
+  if (!checkTokenValid(refreshToken)) {
+    return { success: false, error: 'Refresh token is invalid or expired' };
   }
 
   try {
