@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from '@/lib/api/base-query';
-import type { ILoginResponse } from '@/types/auth.types';
+import type { ILoginResponse, IRefreshTokenResponse } from '@/types/auth.types';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
@@ -35,7 +35,32 @@ export const apiSlice = createApi({
         }
       },
     }),
+    refreshToken: builder.mutation<
+      IRefreshTokenResponse,
+      { refreshToken: string }
+    >({
+      query: (refreshData) => ({
+        url: 'auth/refresh-token',
+        method: 'POST',
+        data: refreshData,
+      }),
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        try {
+          const { data: response } = await queryFulfilled;
+
+          const { setAccessToken, setRefreshToken } = await import('@/lib/auth');
+
+          // Update tokens - they are direct strings in the response
+          setAccessToken(response.data.token);
+          setRefreshToken(response.data.refreshToken);
+        } catch (err) {
+          // Refresh failed, logout user
+          const { logout } = await import('@/@redux/features/auth/auth.slice');
+          dispatch(logout());
+        }
+      },
+    }),
   }),
 });
 
-export const { useLoginMutation } = apiSlice; 
+export const { useLoginMutation, useRefreshTokenMutation } = apiSlice; 

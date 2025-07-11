@@ -35,6 +35,14 @@ export interface ILoginData {
   token: ITokenData;
 }
 
+// Refresh token response has different structure
+export interface IRefreshTokenData {
+  token: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
 // Using the global API response interface
 export type ILoginResponse = IApiResponse<ILoginData>;
+export type IRefreshTokenResponse = IApiResponse<IRefreshTokenData>;
 
