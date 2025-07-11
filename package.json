@@ -6,7 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf .next node_modules/.cache",
+    "analyze": "ANALYZE=true npm run build",
+    "dev:clean": "npm run clean && npm run dev"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
