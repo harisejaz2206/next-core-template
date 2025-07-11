@@ -45,7 +45,8 @@ export const axiosBaseQuery =
         },
       });
 
-      return { data: result.data.data };
+      // Return the full server response instead of unwrapping
+      return { data: result.data };
     } catch (axiosError) {
       const err = axiosError as AxiosError;
       return {
