@@ -96,10 +96,9 @@ Modify `src/lib/session-restore.ts` if you have custom session requirements.
 ## 🎨 Customization Options
 
 ### Branding
-1. Update app name in constants
-2. Replace favicon in `public/`
-3. Update meta tags in `src/app/layout.tsx`
-4. Customize colors in Tailwind config
+1. Replace favicon in `public/`
+2. Update meta tags in `src/app/layout.tsx`
+3. Customize colors in Tailwind config
 
 ### Features
 1. Add new Redux slices for your domain
