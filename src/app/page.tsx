@@ -1,4 +1,5 @@
 import LoginForm from '@/components/LoginForm';
+import ProfileTestButton from '@/components/ProfileTestButton';
 
 export default function Home() {
   return (
@@ -9,6 +10,7 @@ export default function Home() {
           <p className="text-gray-600">Test the authentication system</p>
         </div>
         <LoginForm />
+        <ProfileTestButton />
       </div>
     </div>
   );

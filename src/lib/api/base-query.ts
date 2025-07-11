@@ -41,6 +41,7 @@ export const axiosBaseQuery =
       if (err.response?.status === 401 && url !== 'auth/refresh-token') {
         const errorData = err.response?.data as any;
         const authResult = await handle401Error(errorData, api);
+        console.log('authResult: ', authResult);
         
         if (authResult.shouldRetry && authResult.newToken) {
           // Retry the original request with new token

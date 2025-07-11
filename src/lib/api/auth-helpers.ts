@@ -115,6 +115,8 @@ export const handle401Error = async (
   shouldRetry: boolean;
   newToken?: string;
 }> => {
+  console.log('errorData:', errorData);
+  console.log('api:', api);
   const errorMessage = errorData?.message || '';
   
   if (isTokenExpiredError(errorMessage)) {
@@ -136,6 +138,7 @@ export const handle401Error = async (
     await clearAuthAndLogout(api, 'Authentication failed. Please login again.');
     return { shouldRetry: false };
   } else {
+    console.log('Unknown 401 error - inside');
     // Unknown 401 error - treat as invalid token
     await clearAuthAndLogout(api, 'Authentication error. Please login again.');
     return { shouldRetry: false };
