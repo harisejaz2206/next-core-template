@@ -1,5 +1,6 @@
 import LoginForm from '@/components/LoginForm';
 import ProfileTestButton from '@/components/ProfileTestButton';
+import ReduxCacheExplorer from '@/components/ReduxCacheExplorer';
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
         </div>
         <LoginForm />
         <ProfileTestButton />
+        <ReduxCacheExplorer />
       </div>
     </div>
   );

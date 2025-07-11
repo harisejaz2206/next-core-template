@@ -27,7 +27,7 @@ export default function LoginForm() {
       setServerMessage(`✅ ${response.message}`);
     } catch (err: any) {
       setServerMessage(`❌ ${err?.data?.message || 'Login failed'}`);
-      console.error('Login error:', err);
+      // console.error('Login error:', err);
     }
   };
 
