@@ -23,9 +23,7 @@ export default function LoginForm() {
     
     try {
       const response = await login({ email, password }).unwrap();
-      console.log('response:', response);
       setServerMessage(`✅ ${response.message}`);
-      console.log('Login successful:', response);
     } catch (err: any) {
       setServerMessage(`❌ ${err?.data?.message || 'Login failed'}`);
       console.error('Login error:', err);
