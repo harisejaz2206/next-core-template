@@ -9,6 +9,8 @@ export {
   attemptTokenRefresh,
   clearAuthAndLogout,
   handle401Error,
+  performLogout,
+  handleSessionExpiredLogout,
 } from './auth-helpers';
 
 // Request helpers

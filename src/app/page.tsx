@@ -1,6 +1,7 @@
 import LoginForm from '@/components/LoginForm';
 import ProfileTestButton from '@/components/ProfileTestButton';
 import ReduxCacheExplorer from '@/components/ReduxCacheExplorer';
+import TokenStatusDashboard from '@/components/TokenStatusDashboard';
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
         <LoginForm />
         <ProfileTestButton />
         <ReduxCacheExplorer />
+        <TokenStatusDashboard />
       </div>
     </div>
   );

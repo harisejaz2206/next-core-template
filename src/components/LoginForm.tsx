@@ -1,11 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useLoginMutation } from '@/@redux/features/api/api.slice';
-import { useSelector, useDispatch } from 'react-redux';
+import { useLoginMutation, useLogoutMutation } from '@/@redux/features/api/api.slice';
+import { useSelector } from 'react-redux';
 import { selectUser, selectIsAuthenticated } from '@/@redux/features/auth/auth.selectors';
-import { logout } from '@/@redux/features/auth/auth.slice';
-import { removeAccessToken, removeRefreshToken } from '@/lib/auth';
 import AuthErrorDisplay from './AuthErrorDisplay';
 
 export default function LoginForm() {
@@ -13,8 +11,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [serverMessage, setServerMessage] = useState('');
   
-  const dispatch = useDispatch();
   const [login, { isLoading, error }] = useLoginMutation();
+  const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
   const user = useSelector(selectUser);
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
@@ -31,12 +29,16 @@ export default function LoginForm() {
     }
   };
 
-  const handleLogout = () => {
-    // Clear tokens from localStorage
-    removeAccessToken();
-    removeRefreshToken();
-    // Clear Redux state
-    dispatch(logout());
+  const handleLogout = async () => {
+    setServerMessage('');
+    
+    try {
+      const response = await logout().unwrap();
+      setServerMessage(`✅ ${response.message || 'Logged out successfully'}`);
+    } catch (err: any) {
+      // Even if API call fails, local cleanup still happens via onQueryStarted
+      setServerMessage(`⚠️ ${err?.data?.message || 'Logged out locally'}`);
+    }
   };
 
   if (isAuthenticated && user) {
@@ -53,10 +55,31 @@ export default function LoginForm() {
           </div>
           <button
             onClick={handleLogout}
-            className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
+            disabled={isLoggingOut}
+            className="mt-4 w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 disabled:bg-green-300 disabled:cursor-not-allowed"
           >
-            Logout
+            {isLoggingOut ? 'Logging out...' : 'Logout'}
           </button>
+          
+          {/* Test button for session expiry demo - remove in production */}
+          <button
+            onClick={() => {
+              const { handleSessionExpiredLogout } = require('@/lib/api/auth-helpers');
+              handleSessionExpiredLogout({ dispatch: (action: any) => {
+                const { store } = require('@/lib/redux/store');
+                store.dispatch(action);
+              }});
+            }}
+            className="mt-2 w-full bg-yellow-500 text-white py-1 px-2 rounded text-sm hover:bg-yellow-600"
+          >
+            🧪 Test Session Expiry Message
+          </button>
+          
+          {serverMessage && (
+            <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-md">
+              <p className="text-sm text-gray-700">{serverMessage}</p>
+            </div>
+          )}
         </div>
       </>
     );

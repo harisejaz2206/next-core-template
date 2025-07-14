@@ -90,7 +90,8 @@ export const attemptTokenRefresh = async (): Promise<{
  */
 export const clearAuthAndLogout = async (
   api: any, 
-  message: string = 'Authentication error. Please login again.'
+  message: string = 'Authentication error. Please login again.',
+  isSessionExpiry: boolean = false
 ): Promise<void> => {
   // Clear tokens from localStorage
   removeAccessToken();
@@ -101,7 +102,60 @@ export const clearAuthAndLogout = async (
     const { logout } = await import('@/@redux/features/auth/auth.slice');
     const { authFailed } = await import('@/@redux/features/auth/auth.slice');
     api.dispatch(logout());
-    api.dispatch(authFailed(message));
+    
+    // Show different messages for session expiry vs other auth errors
+    if (isSessionExpiry) {
+      api.dispatch(authFailed('🔒 Your session has expired. Please log in again to continue.'));
+    } else {
+      api.dispatch(authFailed(message));
+    }
+  }
+};
+
+/**
+ * Displays logout message for expired sessions
+ */
+export const handleSessionExpiredLogout = async (api: any): Promise<void> => {
+  await clearAuthAndLogout(
+    api, 
+    'Session expired. Please login again.',
+    true // Mark as session expiry
+  );
+};
+
+/**
+ * Performs a complete logout including API call and local cleanup
+ * This is for manual user logout actions
+ */
+export const performLogout = async (): Promise<{
+  success: boolean;
+  message: string;
+}> => {
+  try {
+    // Import RTK Query mutation
+    const { store } = await import('@/lib/redux/store');
+    const { apiSlice } = await import('@/@redux/features/api/api.slice');
+    
+    // Call the logout API endpoint which will handle cleanup via onQueryStarted
+    const result = await store.dispatch(apiSlice.endpoints.logout.initiate());
+    
+    if (result.data?.statusCode === 200) {
+      return {
+        success: true,
+        message: result.data.data?.message || 'Logged out successfully'
+      };
+    } else {
+      return {
+        success: false,
+        message: 'Logout API call failed, but local cleanup completed'
+      };
+    }
+  } catch (error) {
+    // Even if API fails, we still clear local data (handled by mutation)
+    return {
+      success: false,
+      message: 'Logout completed locally, server logout may have failed'
+    };
   }
 };
 
@@ -129,8 +183,8 @@ export const handle401Error = async (
         newToken: refreshResult.newToken 
       };
     } else {
-      // Refresh failed
-      await clearAuthAndLogout(api, 'Session expired. Please login again.');
+      // Refresh failed - this is a session expiry scenario
+      await handleSessionExpiredLogout(api);
       return { shouldRetry: false };
     }
   } else if (isTokenInvalidError(errorMessage)) {

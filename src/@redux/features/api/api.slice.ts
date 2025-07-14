@@ -71,6 +71,35 @@ export const apiSlice = createApi({
       }),
       providesTags: ['User'],
     }),
+    logout: builder.mutation<
+      IApiResponse<{ message: string }>,
+      void
+    >({
+      query: () => ({
+        url: 'auth/logout',
+        method: 'POST',
+      }),
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        try {
+          // Call the logout API endpoint first
+          await queryFulfilled;
+          
+          // After successful API call, clear all local auth data
+          const { clearAuthAndLogout } = await import('@/lib/api/auth-helpers');
+          await clearAuthAndLogout(
+            { dispatch }, 
+            'You have been logged out successfully.'
+          );
+        } catch (err) {
+          // Even if API call fails, clear local auth data
+          const { clearAuthAndLogout } = await import('@/lib/api/auth-helpers');
+          await clearAuthAndLogout(
+            { dispatch }, 
+            'Logged out locally. Server logout may have failed.'
+          );
+        }
+      },
+    }),
   }),
 });
 
@@ -78,5 +107,6 @@ export const {
   useLoginMutation, 
   useRefreshTokenMutation,
   useGetUserProfileQuery,
-  useLazyGetUserProfileQuery
+  useLazyGetUserProfileQuery,
+  useLogoutMutation
 } = apiSlice; 

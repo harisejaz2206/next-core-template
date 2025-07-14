@@ -39,7 +39,9 @@ export const axiosBaseQuery =
       
       // Handle 401 Unauthorized errors
       if (err.response?.status === 401 && url !== 'auth/refresh-token') {
+        console.log('401 Unauthorized error');
         const errorData = err.response?.data as any;
+        console.log('errorData: ', errorData);
         const authResult = await handle401Error(errorData, api);
         console.log('authResult: ', authResult);
         
